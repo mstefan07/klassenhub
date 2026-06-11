@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import { Filter, Plus, Search } from "lucide-react";
 import { ClassPicker } from "@/components/classes/class-picker";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,24 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import {
+  NoAnnouncementsVisual,
+  NoEventsVisual,
+  NoFilesVisual,
+  NoTasksVisual,
+} from "@/components/ui/empty-visuals";
+import { Fab } from "@/components/ui/fab";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useClassMemberships } from "@/hooks/use-class-memberships";
+import { formatRelativeDate } from "@/lib/calculations/dates";
+import { subjectColor, subjectTint } from "@/lib/constants/subject-colors";
+import { fadeIn, listItem } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 import { getBrowserSupabaseClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { UserRole } from "@/types";
@@ -82,6 +95,26 @@ type DataModulePageProps = {
   getRowStatus?: (row: DataRow) => { status: string; label: string };
 };
 
+const emptyVisualsByTable: Record<string, React.ReactNode> = {
+  assignments: <NoTasksVisual />,
+  events: <NoEventsVisual />,
+  resources: <NoFilesVisual />,
+  announcements: <NoAnnouncementsVisual />,
+};
+
+const dueToneClass = {
+  overdue: "text-destructive",
+  today: "text-warning",
+  soon: "text-warning",
+  normal: "text-muted-foreground",
+} as const;
+
+const priorityDotClass: Record<string, string> = {
+  high: "bg-destructive",
+  medium: "bg-warning",
+  low: "bg-faint-foreground",
+};
+
 function createInitialValues(fields: readonly DataField[]) {
   return fields.reduce<Record<string, string | boolean>>((result, field) => {
     result[field.name] = field.type === "checkbox" ? false : "";
@@ -111,6 +144,7 @@ export function DataModulePage({
   getRowStatus,
 }: DataModulePageProps) {
   const { selectedClass, selectedClassId } = useClassMemberships();
+  const reduceMotion = useReducedMotion();
   const [rows, setRows] = useState<DataRow[]>([]);
   const [values, setValues] = useState(() => createInitialValues(fields));
   const [isLoading, setIsLoading] = useState(false);
@@ -284,15 +318,19 @@ export function DataModulePage({
     setIsSubmitting(false);
   }
 
+  const hasStatusChips = Boolean(filterConfig?.statuses?.length);
+  const rowVariants = reduceMotion ? fadeIn : listItem;
+
   return (
     <div>
       <PageHeading title={title} description={description} action={<ClassPicker />} />
 
       <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <Card>
+        {/* Erstellen – auf Mobile nach der Liste */}
+        <Card className="order-2 h-fit xl:order-1" id="create-form">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <span className="bg-gradient-brand flex size-10 shrink-0 items-center justify-center rounded-lg text-white">
                 <Plus className="size-5" />
               </span>
               <div>
@@ -345,10 +383,10 @@ export function DataModulePage({
                       ))}
                     </Select>
                   ) : field.type === "checkbox" ? (
-                    <label className="flex items-center gap-3 rounded-md border border-border p-3 text-sm">
+                    <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-border p-3 text-sm transition-colors hover:border-border-strong">
                       <input
                         checked={Boolean(values[field.name])}
-                        className="size-4 accent-primary"
+                        className="size-5 accent-primary"
                         id={`${tableName}-${field.name}`}
                         type="checkbox"
                         onChange={(event) =>
@@ -379,16 +417,17 @@ export function DataModulePage({
               ))}
 
               {error ? (
-                <p className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
                   {error}
                 </p>
               ) : null}
               {success ? (
-                <p className="rounded-md bg-success/10 p-3 text-sm text-success">
+                <p className="rounded-lg bg-success/10 p-3 text-sm text-success">
                   {success}
                 </p>
               ) : null}
               <Button
+                className="w-full sm:w-auto"
                 disabled={
                   !isSupabaseConfigured ||
                   !selectedClassId ||
@@ -403,9 +442,10 @@ export function DataModulePage({
           </CardContent>
         </Card>
 
-        <section className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1fr_130px_130px_130px_130px_130px]">
-            <label className="relative">
+        {/* Liste – auf Mobile zuerst */}
+        <section className="order-1 space-y-4 xl:order-2">
+          <div className="space-y-3">
+            <label className="relative block">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="pl-9"
@@ -414,69 +454,101 @@ export function DataModulePage({
                 onChange={(event) => setQuery(event.target.value)}
               />
             </label>
-            <Select
-              aria-label="Fach filtern"
-              value={subjectFilter}
-              onChange={(event) => setSubjectFilter(event.target.value)}
-            >
-              <option value="">Alle Fächer</option>
-              {filterConfig?.subjects?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <Select
-              aria-label="Typ filtern"
-              value={typeFilter}
-              onChange={(event) => setTypeFilter(event.target.value)}
-            >
-              <option value="">Alle Typen</option>
-              {filterConfig?.types?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <Select
-              aria-label="Status filtern"
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
-              <option value="">Alle Status</option>
-              {filterConfig?.statuses?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <Select
-              aria-label="Priorität filtern"
-              value={priorityFilter}
-              onChange={(event) => setPriorityFilter(event.target.value)}
-            >
-              <option value="">Alle Prioritäten</option>
-              {filterConfig?.priorities?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            <Input
-              aria-label="Datum filtern"
-              type="date"
-              value={dateFilter}
-              onChange={(event) => setDateFilter(event.target.value)}
-            />
+
+            {hasStatusChips ? (
+              <div className="scrollbar-none -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+                {[{ label: "Alle", value: "" }, ...(filterConfig?.statuses ?? [])].map(
+                  (option) => {
+                    const active = statusFilter === option.value;
+
+                    return (
+                      <button
+                        className={cn(
+                          "shrink-0 rounded-full border px-3.5 py-2 text-xs font-semibold transition-colors duration-150",
+                          active
+                            ? "border-primary/40 bg-primary/12 text-primary"
+                            : "border-border bg-card text-muted-foreground hover:border-border-strong hover:text-foreground",
+                        )}
+                        key={option.value || "all"}
+                        type="button"
+                        onClick={() => setStatusFilter(option.value)}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  },
+                )}
+              </div>
+            ) : null}
+
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {filterConfig?.subjects?.length ? (
+                <Select
+                  aria-label="Fach filtern"
+                  value={subjectFilter}
+                  onChange={(event) => setSubjectFilter(event.target.value)}
+                >
+                  <option value="">Alle Fächer</option>
+                  {filterConfig.subjects.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              ) : null}
+              {filterConfig?.types?.length ? (
+                <Select
+                  aria-label="Typ filtern"
+                  value={typeFilter}
+                  onChange={(event) => setTypeFilter(event.target.value)}
+                >
+                  <option value="">Alle Typen</option>
+                  {filterConfig.types.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              ) : null}
+              {filterConfig?.priorities?.length ? (
+                <Select
+                  aria-label="Priorität filtern"
+                  value={priorityFilter}
+                  onChange={(event) => setPriorityFilter(event.target.value)}
+                >
+                  <option value="">Alle Prioritäten</option>
+                  {filterConfig.priorities.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              ) : null}
+              {filterConfig?.dateField ? (
+                <Input
+                  aria-label="Datum filtern"
+                  type="date"
+                  value={dateFilter}
+                  onChange={(event) => setDateFilter(event.target.value)}
+                />
+              ) : null}
+            </div>
           </div>
 
           {isLoading ? (
-            <Card className="p-5 text-sm text-muted-foreground">
-              Daten werden geladen...
-            </Card>
+            <div className="space-y-3">
+              {[0, 1, 2, 3].map((index) => (
+                <Skeleton className="h-20 rounded-xl" key={index} />
+              ))}
+            </div>
           ) : filteredRows.length === 0 ? (
             <EmptyState
-              icon={<Icon className="size-5" />}
+              icon={
+                emptyVisualsByTable[tableName] ? undefined : (
+                  <Icon className="size-5" />
+                )
+              }
+              visual={emptyVisualsByTable[tableName]}
               title={emptyTitle}
               description={emptyDescription}
             />
@@ -484,28 +556,102 @@ export function DataModulePage({
             <div className="space-y-3">
               {filteredRows.map((row) => {
                 const status = getRowStatus?.(row);
+                const subject = filterConfig?.subjectField
+                  ? valueAsString(row[filterConfig.subjectField])
+                  : valueAsString(row.subject);
+                const dateValue = filterConfig?.dateField
+                  ? valueAsString(row[filterConfig.dateField])
+                  : "";
+                const due = dateValue ? formatRelativeDate(dateValue) : null;
+                const priority = filterConfig?.priorityField
+                  ? valueAsString(row[filterConfig.priorityField])
+                  : "";
+                const hiddenMetaValues = new Set(
+                  [subject, dateValue, priority].filter(Boolean),
+                );
+                const meta = getRowMeta(row).filter(
+                  (item) => !hiddenMetaValues.has(item),
+                );
 
                 return (
-                  <Card key={valueAsString(row.id)} className="p-4">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <h3 className="font-semibold">{getRowTitle(row)}</h3>
-                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                          {getRowMeta(row).map((item) => (
-                            <span
-                              className="rounded-md bg-secondary px-2 py-1"
-                              key={item}
-                            >
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      {status ? (
-                        <StatusBadge label={status.label} status={status.status} />
+                  <motion.div
+                    initial="hidden"
+                    key={valueAsString(row.id)}
+                    variants={rowVariants}
+                    viewport={{ once: true, amount: 0.2 }}
+                    whileInView="visible"
+                  >
+                    <Card
+                      className="relative overflow-hidden p-4 pl-5"
+                      variant="elevated"
+                    >
+                      {subject ? (
+                        <span
+                          aria-hidden
+                          className="absolute inset-y-3 left-0 w-[3px] rounded-r-full"
+                          style={{ backgroundColor: subjectColor(subject).base }}
+                        />
                       ) : null}
-                    </div>
-                  </Card>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            {priority && priorityDotClass[priority] ? (
+                              <span
+                                aria-hidden
+                                className={cn(
+                                  "size-2 shrink-0 rounded-full",
+                                  priorityDotClass[priority],
+                                )}
+                                title={`Priorität: ${priority}`}
+                              />
+                            ) : null}
+                            <h3 className="min-w-0 truncate font-semibold">
+                              {getRowTitle(row)}
+                            </h3>
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                            {subject ? (
+                              <span
+                                className="rounded px-1.5 py-0.5 font-medium"
+                                style={{
+                                  backgroundColor: subjectTint(subject),
+                                  color: subjectColor(subject).base,
+                                }}
+                              >
+                                {subject}
+                              </span>
+                            ) : null}
+                            {due ? (
+                              <span
+                                className={cn(
+                                  "font-mono font-medium",
+                                  dueToneClass[due.tone],
+                                )}
+                              >
+                                {due.label}
+                              </span>
+                            ) : null}
+                            {meta.map((item) => (
+                              <span
+                                className="rounded-md bg-secondary px-2 py-1 text-muted-foreground"
+                                key={item}
+                              >
+                                {item}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        {status ? (
+                          <div className="shrink-0">
+                            <StatusBadge
+                              label={status.label}
+                              status={status.status}
+                            />
+                          </div>
+                        ) : null}
+                      </div>
+                    </Card>
+                  </motion.div>
                 );
               })}
             </div>
@@ -517,6 +663,8 @@ export function DataModulePage({
           </p>
         </section>
       </div>
+
+      {canCreate ? <Fab href="#create-form" label={createLabel} /> : null}
     </div>
   );
 }

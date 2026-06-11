@@ -129,7 +129,7 @@ export function ClassSetupPanel() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <span className="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+              <span className="bg-gradient-brand flex size-10 items-center justify-center rounded-lg text-white">
                 <Users className="size-5" />
               </span>
               <div>

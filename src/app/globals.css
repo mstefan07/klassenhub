@@ -1,79 +1,148 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f9fb;
-  --foreground: #172033;
+  /* Background-Ebenen */
+  --background: #f6f8fb;
+  --surface: #ffffff;
   --card: #ffffff;
-  --card-foreground: #172033;
+  --card-elevated: #ffffff;
+  --card-foreground: #0e1525;
   --popover: #ffffff;
-  --popover-foreground: #172033;
-  --primary: #0f766e;
-  --primary-foreground: #f8fffd;
-  --secondary: #eef4f7;
-  --secondary-foreground: #172033;
-  --muted: #eef3f6;
-  --muted-foreground: #647184;
-  --accent: #f59e0b;
-  --accent-foreground: #1f2937;
+  --popover-foreground: #0e1525;
+
+  /* Text */
+  --foreground: #0e1525;
+  --muted-foreground: #5c6678;
+  --faint-foreground: #8a93a6;
+
+  /* Brand */
+  --primary: #0d9488;
+  --primary-foreground: #f0fdfa;
+  --brand-indigo: #5560e8;
+  --gradient-brand: linear-gradient(135deg, #0d9488 0%, #5560e8 100%);
+  --glow-brand: 0 0 32px rgba(13, 148, 136, 0.18);
+
+  /* Flächen & Linien */
+  --secondary: #eef2f7;
+  --secondary-foreground: #0e1525;
+  --muted: #eef2f7;
+  --border: #e3e9f1;
+  --border-strong: #cbd5e1;
+  --input: #e3e9f1;
+  --ring: #0d9488;
+
+  /* Status */
+  --success: #059669;
+  --warning: #d97706;
   --destructive: #dc2626;
   --destructive-foreground: #fff7f7;
-  --border: #d9e2e8;
-  --input: #d9e2e8;
-  --ring: #0f766e;
-  --success: #0f9f6e;
-  --warning: #d97706;
   --info: #2563eb;
-  --radius: 0.5rem;
+  --accent: #d97706;
+  --accent-foreground: #1f2937;
+
+  /* Rollen */
+  --role-student: #2563eb;
+  --role-rep: #7c3aed;
+  --role-teacher: #0d9488;
+  --role-admin: #d97706;
+
+  /* Schatten */
+  --elevation-1: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --elevation-2: 0 4px 16px rgba(16, 24, 40, 0.08);
+  --elevation-3: 0 12px 40px rgba(16, 24, 40, 0.12);
+
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: #0d1420;
-  --foreground: #edf4f7;
-  --card: #121c2a;
-  --card-foreground: #edf4f7;
-  --popover: #121c2a;
-  --popover-foreground: #edf4f7;
-  --primary: #2dd4bf;
-  --primary-foreground: #042f2e;
-  --secondary: #1b2737;
+  /* Background-Ebenen */
+  --background: #0a0e1a;
+  --surface: #0e1422;
+  --card: #121829;
+  --card-elevated: #18203a;
+  --card-foreground: #f2f5fa;
+  --popover: #18203a;
+  --popover-foreground: #f2f5fa;
+
+  /* Text */
+  --foreground: #f2f5fa;
+  --muted-foreground: #8b95ab;
+  --faint-foreground: #5d6880;
+
+  /* Brand */
+  --primary: #2dd8c6;
+  --primary-foreground: #04201d;
+  --brand-indigo: #6e7cff;
+  --gradient-brand: linear-gradient(135deg, #2dd8c6 0%, #6e7cff 100%);
+  --glow-brand: 0 0 32px rgba(45, 216, 198, 0.22);
+
+  /* Flächen & Linien */
+  --secondary: #1a2236;
   --secondary-foreground: #e2e8f0;
-  --muted: #1b2737;
-  --muted-foreground: #9aa8ba;
-  --accent: #fbbf24;
-  --accent-foreground: #241a05;
-  --destructive: #f87171;
-  --destructive-foreground: #2b0909;
-  --border: #253244;
-  --input: #253244;
-  --ring: #5eead4;
+  --muted: #1a2236;
+  --border: #232c44;
+  --border-strong: #2e3a58;
+  --input: #232c44;
+  --ring: #2dd8c6;
+
+  /* Status */
   --success: #34d399;
   --warning: #fbbf24;
+  --destructive: #f87171;
+  --destructive-foreground: #2b0909;
   --info: #60a5fa;
+  --accent: #fbbf24;
+  --accent-foreground: #241a05;
+
+  /* Rollen */
+  --role-student: #60a5fa;
+  --role-rep: #a78bfa;
+  --role-teacher: #2dd8c6;
+  --role-admin: #fbbf24;
+
+  /* Schatten */
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --elevation-2: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --elevation-3: 0 12px 40px rgba(0, 0, 0, 0.45);
+
+  --radius: 0.75rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
   --color-card: var(--card);
+  --color-card-elevated: var(--card-elevated);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand-indigo: var(--brand-indigo);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-faint-foreground: var(--faint-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-role-student: var(--role-student);
+  --color-role-rep: var(--role-rep);
+  --color-role-teacher: var(--role-teacher);
+  --color-role-admin: var(--role-admin);
+  --shadow-soft: var(--elevation-1);
+  --shadow-raised: var(--elevation-2);
+  --shadow-overlay: var(--elevation-3);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -92,6 +161,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 button,
@@ -103,5 +174,162 @@ select {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--primary) 24%, transparent);
+  background: color-mix(in srgb, var(--primary) 28%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* --- Brand-Helfer --------------------------------------------------- */
+
+.bg-gradient-brand {
+  background-image: var(--gradient-brand);
+}
+
+.text-gradient-brand {
+  background-image: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.shadow-glow {
+  box-shadow: var(--glow-brand);
+}
+
+/* Dezentes Raster für Hero-Flächen, per Maske nach unten ausgeblendet */
+.bg-grid-fade {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 90% 70% at 50% 0%,
+    black 40%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 90% 70% at 50% 0%,
+    black 40%,
+    transparent 100%
+  );
+}
+
+/* --- Keyframes (CSS-Animationen für Visuals) ------------------------ */
+
+@keyframes kh-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes kh-float-delayed {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes kh-pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes kh-ring-out {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@keyframes kh-bar-fill {
+  0%,
+  20% {
+    width: 18%;
+  }
+  60%,
+  100% {
+    width: 64%;
+  }
+}
+
+@keyframes kh-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-kh-float {
+  animation: kh-float 7s ease-in-out infinite;
+}
+
+.animate-kh-float-delayed {
+  animation: kh-float-delayed 9s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+
+.animate-kh-pulse-soft {
+  animation: kh-pulse-soft 3.5s ease-in-out infinite;
+}
+
+.animate-kh-ring-out {
+  animation: kh-ring-out 3s ease-out infinite;
+}
+
+.animate-kh-bar-fill {
+  animation: kh-bar-fill 5s ease-in-out infinite alternate;
+}
+
+.animate-kh-fade-up {
+  animation: kh-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Horizontale Chip-Reihen ohne sichtbare Scrollbar */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Reduced Motion -------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
 }

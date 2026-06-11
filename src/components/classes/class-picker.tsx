@@ -17,12 +17,18 @@ export function ClassPicker() {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Klassen werden geladen...</p>;
+    return (
+      <div
+        aria-label="Klassen werden geladen"
+        className="h-11 w-full animate-pulse rounded-lg bg-secondary sm:h-10 sm:w-80"
+        role="status"
+      />
+    );
   }
 
   if (classes.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
+      <p className="max-w-60 text-xs leading-5 text-muted-foreground sm:text-right">
         Erstelle zuerst eine Klasse oder tritt per Einladungscode bei.
       </p>
     );

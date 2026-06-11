@@ -15,6 +15,21 @@ const statusVariant: Record<string, BadgeProps["variant"]> = {
   normal: "secondary",
 };
 
+export const STATUS_LABELS: Record<string, string> = {
+  done: "Erledigt",
+  active: "Aktiv",
+  soon: "Bald",
+  overdue: "Überfällig",
+  missed: "Verpasst",
+  urgent: "Dringend",
+  important: "Wichtig",
+  planned: "Geplant",
+  open: "Offen",
+  in_progress: "In Arbeit",
+  ended: "Beendet",
+  normal: "Normal",
+};
+
 export function StatusBadge({
   status,
   label,
@@ -22,9 +37,12 @@ export function StatusBadge({
   status: string;
   label?: string;
 }) {
+  const resolvedLabel =
+    label && label !== status ? label : (STATUS_LABELS[status] ?? label ?? status);
+
   return (
-    <Badge variant={statusVariant[status] ?? "secondary"}>
-      {label ?? status}
+    <Badge withDot variant={statusVariant[status] ?? "secondary"}>
+      {resolvedLabel}
     </Badge>
   );
 }

@@ -4,25 +4,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-[color,background-color,border-color,box-shadow,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+          "bg-primary text-primary-foreground shadow-soft hover:bg-primary/90",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground shadow-soft hover:bg-secondary/80",
         outline:
-          "border border-border bg-background shadow-sm hover:bg-muted hover:text-foreground",
+          "border border-border bg-background shadow-soft hover:border-border-strong hover:bg-muted hover:text-foreground",
         ghost: "hover:bg-muted hover:text-foreground",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground shadow-soft hover:bg-destructive/90",
       },
       size: {
-        default: "h-10 px-4 py-2",
+        default: "h-11 px-4 py-2 sm:h-10",
         sm: "h-9 px-3",
-        lg: "h-11 px-5",
-        icon: "h-10 w-10",
+        lg: "h-12 px-6 sm:h-11",
+        icon: "size-11 sm:size-10",
       },
     },
     defaultVariants: {

@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold transition-colors",
+  "inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-semibold transition-colors",
   {
     variants: {
       variant: {
@@ -27,10 +27,24 @@ const badgeVariants = cva(
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+    VariantProps<typeof badgeVariants> {
+  /** Zeigt einen Status-Dot in der aktuellen Textfarbe. */
+  withDot?: boolean;
+}
 
-export function Badge({ className, variant, ...props }: BadgeProps) {
+export function Badge({
+  className,
+  variant,
+  withDot = false,
+  children,
+  ...props
+}: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div className={cn(badgeVariants({ variant }), className)} {...props}>
+      {withDot ? (
+        <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-current" />
+      ) : null}
+      {children}
+    </div>
   );
 }
